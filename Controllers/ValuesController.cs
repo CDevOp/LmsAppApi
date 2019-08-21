@@ -16,9 +16,8 @@ namespace LmsApp.API.Controllers
         public ValuesController(DataContext context)
         {
             _context = context;
-
         }
-        
+
         // GET api/values
         [HttpGet]
         public async Task<IActionResult> GetValues()
