@@ -8,7 +8,7 @@ namespace LmsApp.API.Dtos
         public string Username { get; set; }
 
         [Required]
-        [StringLength(8, MinimumLength = 4, ErrorMessage = "Between 4 and 8")]
+        [StringLength(8, MinimumLength = 4)]
         public string Password { get; set; }
     }
 }
