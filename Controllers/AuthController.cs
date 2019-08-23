@@ -45,6 +45,8 @@ namespace LmsApp.API.Controllers
         [HttpPost("login")]
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
+            throw new Exception("computer says no!");
+
             // Check if we have a user and if their username and password match what is in the database           
             var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password);
 
