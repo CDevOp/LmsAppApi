@@ -29,7 +29,7 @@ namespace LmsApp.API.Migrations
 
                     b.Property<string>("Url");
 
-                    b.Property<int?>("UserId");
+                    b.Property<int>("UserId");
 
                     b.HasKey("Id");
 
@@ -84,9 +84,10 @@ namespace LmsApp.API.Migrations
 
             modelBuilder.Entity("LmsApp.API.Models.Photo", b =>
                 {
-                    b.HasOne("LmsApp.API.Models.User")
+                    b.HasOne("LmsApp.API.Models.User", "User")
                         .WithMany("Photos")
-                        .HasForeignKey("UserId");
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 #pragma warning restore 612, 618
         }
