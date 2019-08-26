@@ -26,6 +26,7 @@ namespace LmsApp.API.Helpers
                 });
 
             CreateMap<Photo, PhotosForDetailedDto>();
+            CreateMap<UserForUpdateDto, User>();
         }        
     }
 }
