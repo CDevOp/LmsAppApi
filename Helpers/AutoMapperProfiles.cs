@@ -25,10 +25,16 @@ namespace LmsApp.API.Helpers
                     opt.MapFrom(src => src.DateOfBirth.CalculateAge());
                 });
 
+            CreateMap<User, PhotoForNavUpdateDto>()
+                .ForMember(dest => dest.PhotoUrl, opt => {
+                    opt.MapFrom(src => src.Photos.FirstOrDefault(p => p.IsMain).Url);
+                 });
+
             CreateMap<Photo, PhotosForDetailedDto>();
             CreateMap<UserForUpdateDto, User>();
             CreateMap<Photo, PhotoForReturnDto>();
             CreateMap<PhotoForCreationDto, Photo>();
+
         }        
     }
 }
