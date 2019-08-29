@@ -1,6 +1,7 @@
 using System;
 using Microsoft.AspNetCore.Http;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace LmsApp.API.Helpers
 {
@@ -17,8 +18,11 @@ namespace LmsApp.API.Helpers
             int itemsPerPage, int totalItems, int totalPages)
         {
             var paginationHeader = new PaginationHeader(currentPage, itemsPerPage, totalItems, totalPages);
+            var camelCaseFormatter = new JsonSerializerSettings();
 
-            response.Headers.Add("Pagination", JsonConvert.SerializeObject(paginationHeader));
+            camelCaseFormatter.ContractResolver = new CamelCasePropertyNamesContractResolver();
+            
+            response.Headers.Add("Pagination", JsonConvert.SerializeObject(paginationHeader, camelCaseFormatter));
             response.Headers.Add("Access-Control-Expose-Headers", "Pagination");
         }   
 
