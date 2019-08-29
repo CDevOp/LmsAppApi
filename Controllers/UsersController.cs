@@ -7,9 +7,11 @@ using LmsApp.API.Data;
 using LmsApp.API.Dtos;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using LmsApp.API.Helpers;
 
 namespace LmsApp.API.Controllers
 {
+    [ServiceFilter(typeof(LogUsersActivity))]
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]
