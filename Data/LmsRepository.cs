@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -48,7 +49,24 @@ namespace LmsApp.API.Data
 
         public async Task<PagedList<User>> GetUsers(UserParams userParams)
         {
-            var users =  _context.Users.Include(p => p.Photos);
+            var users =  _context.Users.Include(p => p.Photos).AsQueryable();
+
+            // Filter out current user from list of returned user
+            users = users.Where(u => u.Id != userParams.UserId);
+
+            // Only return gender of user specified in userParams
+            // If user is male, return females
+            // If user is female, return males
+            users = users.Where(u => u.Gender == userParams.Gender);
+
+            // Filter users based on age - default to 18 - 99 if not specified 
+            if (userParams.MinAge != 18 || userParams.MaxAge != 99)
+            {
+                var minDob = DateTime.Today.AddYears(-userParams.MaxAge - 1);
+                var maxDob = DateTime.Today.AddYears(-userParams.MinAge);
+
+                users = users.Where(u => u.DateOfBirth >= minDob && u.DateOfBirth <= maxDob);
+            }
             
             return await PagedList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
