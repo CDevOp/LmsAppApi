@@ -142,15 +142,18 @@ namespace LmsApp.API.Data
             switch (messageParams.MessageContainer)
             {
                 case "Index":
-                    messages = messages.Where(u => u.RecipientId == messageParams.UserId);
+                    messages = messages.Where(u => u.RecipientId == messageParams.UserId 
+                        && u.RecipientDeletedMessage == false);
                     break;
                 case "Outbox":
-                    messages = messages.Where(u => u.SenderId == messageParams.UserId);
+                    messages = messages.Where(u => u.SenderId == messageParams.UserId 
+                        && u.SenderDeletedMessage == false);
                     break;
                 default:
-                    messages = messages.Where(u => u.RecipientId == messageParams.UserId &&
-                        u.IsRead == false);
-                        break;
+                    messages = messages.Where(u => u.RecipientId == messageParams.UserId 
+                        && u.RecipientDeletedMessage == false 
+                        && u.IsRead == false);
+                    break;
             }
 
             messages = messages.OrderByDescending(d => d.MessageSent);
@@ -163,8 +166,10 @@ namespace LmsApp.API.Data
             var messages = await _context.Messages
                 .Include(u => u.Sender).ThenInclude(p => p.Photos)
                 .Include(u => u.Recipient).ThenInclude(p => p.Photos)
-                .Where(m => m.RecipientId == userId && m.SenderId == recipientId ||
-                    m.RecipientId == recipientId && m.SenderId == userId)
+                .Where(m => m.RecipientId == userId && m.RecipientDeletedMessage == false 
+                    && m.SenderId == recipientId ||
+                    m.RecipientId == recipientId && m.SenderId == userId 
+                    && m.SenderDeletedMessage == false)
                 .OrderByDescending(m => m.MessageSent)
                 .ToListAsync();
 

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -99,6 +100,29 @@ namespace LmsApp.API.Controllers
             }
 
             throw new AutoMapperConfigurationException("Crteating the message failed on save");
+        }
+
+        [HttpPost("{id}")]
+        public async Task<IActionResult> DeleteMessage(int id, int userId)
+        {
+            if (userId != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var messageFromRepo = await _repo.GetMessage(id);
+
+            if (messageFromRepo.SenderId == userId)
+                messageFromRepo.SenderDeletedMessage = true;
+
+            if (messageFromRepo.RecipientId == userId)
+                messageFromRepo.RecipientDeletedMessage = true;
+
+            if (messageFromRepo.SenderDeletedMessage && messageFromRepo.RecipientDeletedMessage)
+                _repo.Delete(messageFromRepo);
+            
+            if (await _repo.SaveAll())
+                return NoContent();
+
+            throw new Exception("Error deleting the message");
         }
     }
 }
