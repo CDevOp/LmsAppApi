@@ -103,7 +103,6 @@ namespace LmsApp.API
             services.Configure<CloudinarySettings>(Configuration.GetSection("CloudinarySettings"));
             services.AddAutoMapper(typeof(LmsRepository).Assembly);
             services.AddTransient<Seed>();
-            services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<ILmsRepository, LmsRepository>();
             services.AddScoped<LogUsersActivity>();
         }

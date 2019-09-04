@@ -20,36 +20,35 @@ namespace LmsApp.API.Controllers
     [AllowAnonymous]
     public class AuthController : ControllerBase
     {
-        private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
         private readonly SignInManager<User> _signInManager;
         private readonly UserManager<User> _userManager;
-        public AuthController(IAuthRepository repo, IConfiguration config, IMapper mapper, 
+        public AuthController(IConfiguration config, IMapper mapper, 
             UserManager<User> userManager, SignInManager<User> signInManager)
         {
             _signInManager = signInManager;
             _userManager = userManager;
             _mapper = mapper;
             _config = config;
-            _repo = repo;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> Register(UserForRegisterDto userForRegisterDto)
         {
-            userForRegisterDto.Username = userForRegisterDto.Username.ToLower();
-
-            if (await _repo.UserExists(userForRegisterDto.Username))
-                return BadRequest("Username already exists");
-
             var userToCreate = _mapper.Map<User>(userForRegisterDto);
 
-            var createdUser = await _repo.Register(userToCreate, userForRegisterDto.Password);
+            var result = await _userManager.CreateAsync(userToCreate, userForRegisterDto.Password);
 
-            var userToReturn = _mapper.Map<UserForDetailedDto>(createdUser);
+            var userToReturn = _mapper.Map<UserForDetailedDto>(userToCreate);
 
-            return CreatedAtRoute("GetUser", new {controller = "Users", id = createdUser.Id}, userToReturn);
+            if (result.Succeeded)
+            {
+                return CreatedAtRoute("GetUser", new {controller = "Users", 
+                    id = userToCreate.Id}, userToReturn);
+            }
+
+            return BadRequest(result.Errors);
         }
 
         [HttpPost("login")]
