@@ -67,7 +67,7 @@ namespace LmsApp.API.Controllers
                 return Ok(new
                 {
                     token = GenerateJwtToken(user),
-                    appUser
+                    user = appUser
                 });
             }  
 
