@@ -9,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace LmsApp.API.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ValuesController : ControllerBase

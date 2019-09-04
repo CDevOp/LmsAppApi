@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace LmsApp.API.Controllers
 {
     [ServiceFilter(typeof(LogUsersActivity))]
-    [Authorize]
     [Route("api/users/{userId}/[controller]")]
     [ApiController]
     public class MessagesController : ControllerBase

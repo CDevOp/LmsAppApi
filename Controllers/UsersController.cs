@@ -13,7 +13,6 @@ using LmsApp.API.Models;
 namespace LmsApp.API.Controllers
 {
     [ServiceFilter(typeof(LogUsersActivity))]
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class UsersController : ControllerBase

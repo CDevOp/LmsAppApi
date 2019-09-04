@@ -7,6 +7,7 @@ using AutoMapper;
 using LmsApp.API.Data;
 using LmsApp.API.Dtos;
 using LmsApp.API.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -15,6 +16,7 @@ namespace LmsApp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [AllowAnonymous]
     public class AuthController : ControllerBase
     {
         private readonly IAuthRepository _repo;
@@ -61,7 +63,7 @@ namespace LmsApp.API.Controllers
                 new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
 
                 // Users username
-                new Claim(ClaimTypes.Name, userFromRepo.Username)
+                new Claim(ClaimTypes.Name, userFromRepo.UserName)
             };
 
             // In order to make sure the token is a valid token when it comes back, the server needs to sign
