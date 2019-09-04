@@ -18,7 +18,7 @@ namespace LmsApp.API.Helpers
 
             var repo = resultContext.HttpContext.RequestServices.GetService<ILmsRepository>();
 
-            var user = await repo.GetUser(userId);
+            var user = await repo.GetUser(userId, true);
 
             user.LastActive = DateTime.Now;
 
