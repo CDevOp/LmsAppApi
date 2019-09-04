@@ -1,4 +1,5 @@
 ﻿using System;
+using lmsapp.api.Models;
 using LmsApp.API.Data;
 using LmsApp.API.Models;
 using Microsoft.AspNetCore;
@@ -25,8 +26,10 @@ namespace LmsApp.API
                     // and seed the users
                     var context = services.GetRequiredService<DataContext>();
                     var userManager = services.GetRequiredService<UserManager<User>>();
+                    var roleManager = services.GetRequiredService<RoleManager<Role>>();
+
                     context.Database.Migrate();
-                    Seed.SeedUsers(userManager);
+                    Seed.SeedUsers(userManager, roleManager);
                 }
                 catch (Exception ex)
                 {
