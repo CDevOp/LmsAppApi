@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -73,11 +74,11 @@ namespace LmsApp.API.Controllers
             return Unauthorized();
         }
 
-        private string GenerateJwtToken(User user)
+        private async Task<string> GenerateJwtToken(User user)
         {
-            var claims = new[]
+            var claims = new List<Claim>
             {
-                // Building up token with 2 claims
+                // Building up token with claims
 
                 // Users Id
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -85,6 +86,13 @@ namespace LmsApp.API.Controllers
                 // Users username
                 new Claim(ClaimTypes.Name, user.UserName)
             };
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            foreach (var role in roles)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, role));
+            }
 
             // In order to make sure the token is a valid token when it comes back, the server needs to sign
             // the token. "AppSettings:Token" is declared in appsettings.json and should be a massive, 
