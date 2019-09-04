@@ -1,7 +1,9 @@
 ﻿using System;
 using LmsApp.API.Data;
+using LmsApp.API.Models;
 using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -22,8 +24,9 @@ namespace LmsApp.API
                     // Anytime database is dropped this will create the database
                     // and seed the users
                     var context = services.GetRequiredService<DataContext>();
+                    var userManager = services.GetRequiredService<UserManager<User>>();
                     context.Database.Migrate();
-                    Seed.SeedUsers(context);
+                    Seed.SeedUsers(userManager);
                 }
                 catch (Exception ex)
                 {

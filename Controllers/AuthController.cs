@@ -8,6 +8,7 @@ using LmsApp.API.Data;
 using LmsApp.API.Dtos;
 using LmsApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
@@ -22,8 +23,13 @@ namespace LmsApp.API.Controllers
         private readonly IAuthRepository _repo;
         private readonly IConfiguration _config;
         private readonly IMapper _mapper;
-        public AuthController(IAuthRepository repo, IConfiguration config, IMapper mapper)
+        private readonly SignInManager<User> _signInManager;
+        private readonly UserManager<User> _userManager;
+        public AuthController(IAuthRepository repo, IConfiguration config, IMapper mapper, 
+            UserManager<User> userManager, SignInManager<User> signInManager)
         {
+            _signInManager = signInManager;
+            _userManager = userManager;
             _mapper = mapper;
             _config = config;
             _repo = repo;
@@ -50,20 +56,35 @@ namespace LmsApp.API.Controllers
         public async Task<IActionResult> Login(UserForLoginDto userForLoginDto)
         {
             // Check if we have a user and if their username and password match what is in the database           
-            var userFromRepo = await _repo.Login(userForLoginDto.Username.ToLower(), userForLoginDto.Password);
+            var user = await _userManager.FindByNameAsync(userForLoginDto.Username);
 
-            if (userFromRepo == null)
-                return Unauthorized();
+            var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
 
+            if (result.Succeeded)
+            {        
+                var appUser = _mapper.Map<PhotoForNavUpdateDto>(user);
+
+                return Ok(new
+                {
+                    token = GenerateJwtToken(user),
+                    appUser
+                });
+            }  
+
+            return Unauthorized();
+        }
+
+        private string GenerateJwtToken(User user)
+        {
             var claims = new[]
             {
                 // Building up token with 2 claims
 
                 // Users Id
-                new Claim(ClaimTypes.NameIdentifier, userFromRepo.Id.ToString()),
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
 
                 // Users username
-                new Claim(ClaimTypes.Name, userFromRepo.UserName)
+                new Claim(ClaimTypes.Name, user.UserName)
             };
 
             // In order to make sure the token is a valid token when it comes back, the server needs to sign
@@ -86,14 +107,8 @@ namespace LmsApp.API.Controllers
 
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            var user = _mapper.Map<PhotoForNavUpdateDto>(userFromRepo);
+            return tokenHandler.WriteToken(token);
 
-            // Write token in the response we send back to the client
-            return Ok(new
-            {
-                token = tokenHandler.WriteToken(token),
-                user
-            });
         }
     }
 }
