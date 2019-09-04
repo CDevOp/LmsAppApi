@@ -34,6 +34,9 @@ namespace LmsApp.API.Data
 
                 foreach (var user in users)
                 {
+                    // Automatically approve the first users photo
+                    user.Photos.SingleOrDefault().IsApproved = true;
+                    
                     userManager.CreateAsync(user, "password").Wait();
                     userManager.AddToRoleAsync(user, "Member");
                 }
