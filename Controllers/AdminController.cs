@@ -1,5 +1,12 @@
+using System.Linq;
+using System.Threading.Tasks;
+using lmsapp.api.Dtos;
+using LmsApp.API.Data;
+using LmsApp.API.Models;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace lmsapp.api.Controllers
 {
@@ -7,11 +14,62 @@ namespace lmsapp.api.Controllers
     [Route("api/[controller]")]
     public class AdminController : ControllerBase
     {
+        private readonly DataContext _context;
+        private readonly UserManager<User> _userManager;
+        public AdminController(DataContext context, UserManager<User> userManager)
+        {
+            _userManager = userManager;
+            _context = context;
+        }
+
         [Authorize(Policy = "RequireAdminRole")]
         [HttpGet("usersWithRoles")]
-        public IActionResult GetUsersWithRoles()
+        public async Task<IActionResult> GetUsersWithRoles()
         {
-            return Ok("Only admins can see this");
+            var userList = await _context.Users
+                .OrderBy(x => x.UserName)
+                .Select(user => new
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Roles = (from userRole in user.UserRoles
+                             join role in _context.Roles
+                             on userRole.RoleId
+                             equals role.Id
+                             select role.Name).ToList()
+                }).ToListAsync();
+
+            return Ok(userList);
+        }
+        
+        [Authorize(Policy = "RequireAdminRole")]
+        [HttpPost("editRoles/{userName}")]
+        public async Task<IActionResult> EditRoles(string userName, RoleEditDto roleEditDto)
+        {
+            // get user 
+            var user = await _userManager.FindByNameAsync(userName);
+
+            // get users roles
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            // get selected roles to edit
+            var selectedRoles = roleEditDto.RoleNames;
+
+            // selected = selectedRoles != null ? selectedRoles : new string[] {};
+            // just shorthand for above ternary 
+            selectedRoles = selectedRoles ?? new string[] {};
+
+            var result = await _userManager.AddToRolesAsync(user, selectedRoles.Except(userRoles));
+
+            if (!result.Succeeded)
+                return BadRequest("Failed to add to roles");
+
+            result = await _userManager.RemoveFromRolesAsync(user, userRoles.Except(selectedRoles));
+
+            if (!result.Succeeded)
+                return BadRequest("Failed to remove selected roles");
+
+            return Ok(await _userManager.GetRolesAsync(user));
         }
 
         [Authorize(Policy = "ModeratePhotoRole")]
