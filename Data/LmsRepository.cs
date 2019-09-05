@@ -68,7 +68,7 @@ namespace LmsApp.API.Data
             // Only return gender of user specified in userParams
             // If user is male, return females
             // If user is female, return males
-            // users = users.Where(u => u.Gender == userParams.Gender);
+            //users = users.Where(u => u.Gender == userParams.Gender);
 
             if (userParams.Likers)
             {
