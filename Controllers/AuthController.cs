@@ -58,6 +58,9 @@ namespace LmsApp.API.Controllers
             // Check if we have a user and if their username and password match what is in the database           
             var user = await _userManager.FindByNameAsync(userForLoginDto.Username);
 
+            if (user == null)
+                return Unauthorized();
+
             var result = await _signInManager.CheckPasswordSignInAsync(user, userForLoginDto.Password, false);
 
             if (result.Succeeded)
