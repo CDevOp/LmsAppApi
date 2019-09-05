@@ -23,8 +23,8 @@ namespace LmsApp.API.Data
                     new Role{Name ="Student"},
                     new Role{Name ="Teacher"},
                     new Role{Name ="Moderator"},
-                    new Role{Name ="Admin"}
-
+                    new Role{Name ="Admin"},
+                    new Role{Name="Developer"}
                 };
 
                 foreach (var role in roles)
@@ -47,12 +47,26 @@ namespace LmsApp.API.Data
                     UserName = "Admin"
                 };
 
-                var result = userManager.CreateAsync(adminUser, "password").Result;
+                var adminResult = userManager.CreateAsync(adminUser, "password").Result;
 
-                if (result.Succeeded)
+                if (adminResult.Succeeded)
                 {
                     var admin = userManager.FindByNameAsync("Admin").Result;
                     userManager.AddToRolesAsync(admin, new[] {"Admin", "Moderator"});
+                }
+
+                // Creating developer user
+                var devUser = new User 
+                {
+                    UserName = "Developer"
+                };
+
+                var devResult = userManager.CreateAsync(devUser, "password").Result;
+
+                if (devResult.Succeeded)
+                {
+                    var dev = userManager.FindByNameAsync("Developer").Result;
+                    userManager.AddToRoleAsync(dev, "Developer");
                 }
             }
         }
