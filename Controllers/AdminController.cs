@@ -90,6 +90,27 @@ namespace lmsapp.api.Controllers
             return Ok(await _userManager.GetRolesAsync(user));
         }
 
+        [Authorize(Policy ="RequireAdminRole")]
+        [HttpDelete("deleteUser/{userName}")]
+        public async Task<IActionResult> DeleteUser(string userName)
+        {
+            var user = await _userManager.FindByNameAsync(userName);
+
+            var userRoles = await _userManager.GetRolesAsync(user);
+
+            if (userRoles.Contains("Admin"))
+            {
+                return BadRequest("Cannot delete an admin");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+
+            if (!result.Succeeded)
+                return BadRequest("Failed to delete user");
+            
+            return Ok();
+        }
+
         [Authorize(Policy = "ModeratePhotoRole")]
         [HttpGet("photosForModeration")]
         public async Task<IActionResult> GetPhotosForModeration()
