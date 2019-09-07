@@ -49,7 +49,7 @@ namespace LmsApp.API.Controllers
                     id = userToCreate.Id}, userToReturn);
             }
 
-            return BadRequest(result.Errors);
+            return BadRequest("Username already exists! Please choose a new one");
         }
 
         [HttpPost("login")]
