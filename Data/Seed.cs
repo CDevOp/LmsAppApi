@@ -16,15 +16,12 @@ namespace LmsApp.API.Data
                 var userData = System.IO.File.ReadAllText("Data/UserSeedData.json");
                 var users = JsonConvert.DeserializeObject<List<User>>(userData);
 
-                // Creating user roles
                 var roles = new List<Role>
                 {
-                    new Role{Name ="Member"},
-                    new Role{Name ="Student"},
-                    new Role{Name ="Teacher"},
-                    new Role{Name ="Moderator"},
-                    new Role{Name ="Admin"},
-                    new Role{Name="Developer"}
+                    new Role{Name = "Member"},
+                    new Role{Name = "Admin"},
+                    new Role{Name = "Moderator"},
+                    new Role{Name = "VIP"},
                 };
 
                 foreach (var role in roles)
@@ -34,49 +31,23 @@ namespace LmsApp.API.Data
 
                 foreach (var user in users)
                 {
-                    // Automatically approve the first users photo
                     user.Photos.SingleOrDefault().IsApproved = true;
-                    
                     userManager.CreateAsync(user, "password").Wait();
-                    userManager.AddToRoleAsync(user, "Member");
+                    userManager.AddToRoleAsync(user, "Member").Wait();
                 }
 
-                // Creating admin user
                 var adminUser = new User
                 {
                     UserName = "Admin"
                 };
 
-                var adminResult = userManager.CreateAsync(adminUser, "password").Result;
+                IdentityResult result = userManager.CreateAsync(adminUser, "password").Result;
 
-                if (adminResult.Succeeded)
+                if (result.Succeeded)
                 {
                     var admin = userManager.FindByNameAsync("Admin").Result;
-                    userManager.AddToRolesAsync(admin, new[] {"Admin", "Moderator"});
+                    userManager.AddToRolesAsync(admin, new[] {"Admin", "Moderator"}).Wait();
                 }
-
-                // Creating developer user
-                var devUser = new User 
-                {
-                    UserName = "Developer"
-                };
-
-                var devResult = userManager.CreateAsync(devUser, "password").Result;
-
-                if (devResult.Succeeded)
-                {
-                    var dev = userManager.FindByNameAsync("Developer").Result;
-                    userManager.AddToRoleAsync(dev, "Developer");
-                }
-            }
-        }
-
-        private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
-        {
-            using (var hmac = new System.Security.Cryptography.HMACSHA512())
-            {
-                passwordSalt = hmac.Key;
-                passwordHash = hmac.ComputeHash(System.Text.Encoding.UTF8.GetBytes(password));
             }
         }
     }

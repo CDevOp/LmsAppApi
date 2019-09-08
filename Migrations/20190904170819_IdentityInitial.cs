@@ -13,6 +13,10 @@ namespace LmsApp.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", 
+                        MySqlValueGenerationStrategy.IdentityColumn)
+                         .Annotation("MySqlServer:ValueGenerationStrategy", 
+                        MySqlValueGenerationStrategy.IdentityColumn)   
                         .Annotation("Sqlite:Autoincrement", true),
                     Name = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedName = table.Column<string>(maxLength: 256, nullable: true),
@@ -28,6 +32,10 @@ namespace LmsApp.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", 
+                        MySqlValueGenerationStrategy.IdentityColumn)
+                         .Annotation("MySqlServer:ValueGenerationStrategy", 
+                        MySqlValueGenerationStrategy.IdentityColumn)   
                         .Annotation("Sqlite:Autoincrement", true),
                     UserName = table.Column<string>(maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(maxLength: 256, nullable: true),
